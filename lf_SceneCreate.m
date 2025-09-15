@@ -1,4 +1,4 @@
-function [scene, wgts] = hsSceneCreate(imageID,varargin)
+function [scene, wgts] = lf_SceneCreate(imageID,varargin)
 % Create a scene from an HDR light group 
 %
 % Synopsis
@@ -46,6 +46,7 @@ p.addParameter('denoise',true,@islogical);
 p.addParameter('fov',40,@isscalar);
 p.addParameter('weights',[],@isvector);
 p.addParameter('frameId', "01", @(x) ischar(x) || isstring(x));
+p.addParameter('sensorType', 'spd', @(x) ischar(x));
 
 p.parse(imageID,varargin{:});
 
@@ -57,13 +58,15 @@ if exist(fname,'file')
 else
     % try
         lgt = {'headlights','streetlights','otherlights','skymap'};
-        destPath = fullfile(isethdrsensorRootPath,'data',imageID);
-        disp(destPath);
+        % destPath = fullfile(isethdrsensorRootPath,'data',imageID);
 
         scenes = cell(numel(lgt,1));
         for ll = 1:numel(lgt)
-            thisFile = sprintf('%s_%s_%s.exr',imageID,lgt{ll}, ...
-                p.Results.frameId);
+            destPath = fullfile(piRootPath, 'local', sprintf('%s_%s', imageID, lgt{ll}), ...
+            p.Results.sensorType, 'renderings');
+            fprintf('Reading EXR from %s\n', destPath);
+            
+            thisFile = sprintf('%s.exr',p.Results.frameId);
             destFile = fullfile(destPath,thisFile);
 
             if exist(destFile, 'file')
@@ -74,7 +77,7 @@ else
 
             scenes{ll} = piEXR2ISET(destFile);
         end
-        destPath = fullfile(isethdrsensorRootPath,'data',imageID);
+
         % load(fullfile(destPath,[imageID,'.mat']),'sceneMeta');
     % catch ME
     %     fprintf('Error ID: %s\n', ME.identifier);
