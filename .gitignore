@@ -1,0 +1,6 @@
+local/*
+data/*
+*.asv
+*.log
+.DS_Store
+__pycache__/
