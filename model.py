@@ -241,3 +241,15 @@ def phi_over_frames(D, fp, te, ts, frame_rate, Nsec, A=1, offset=0):
             ts = np.fmod((ts + tf), tp)
 
     return time, phi_t
+
+
+def phi_over_rows(D, fp, te, ts_init, td, Nrows, A=1, offset=0):
+    tp = 1000 / fp
+    Nrows = int(Nrows)
+
+    row_capture = np.zeros(Nrows)
+    for i in range(Nrows):
+        ts = np.fmod(ts_init + i * td, tp)
+        row_capture[i] = get_phi(D, tp, te, ts, A, offset)
+
+    return row_capture
