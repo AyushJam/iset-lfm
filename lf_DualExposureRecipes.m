@@ -11,14 +11,15 @@ function lf_DualExposureRecipes(sceneID, Nframes)
     FPWM_MIN = 90;
     FPWM_MAX = 110;
     gain = 1; % intensity multiplier
-    rng(18); % seed for rand
+    rng(12); % seed for rand
     
     % Camera Params
-    cam_speed = 0; % meters per second;
+    cam_speed = 60; % meters per second;
     te_lpd = 0.005; % exposure duration in sec; LPD
     te_spd = 0.0111; % SPD
     fps = 60; % fps
     sim_time = Nframes / fps; % seconds
+    resolution = [1920 1080];
     
     %% Flicker Model Init
     
@@ -52,7 +53,7 @@ function lf_DualExposureRecipes(sceneID, Nframes)
     
         %% Setup
         thisR = recipes{ii};
-        thisR.set('film resolution', [960 540]);
+        thisR.set('film resolution', resolution);
         thisR.set('rays per pixel', 1024);
         thisR.set('n bounces', 4);
         thisR.set('scale', [1 1 1]);

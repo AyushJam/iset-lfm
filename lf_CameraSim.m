@@ -27,7 +27,7 @@ function lf_CameraSim(imageID, frameId)
     scene_spd = lf_SceneCreate(imageID,'weights',wgts,'denoise',true, ...
         'frameId', frameId, 'sensorType', 'spd');
     scene_lpd = lf_SceneCreate(imageID,'weights',wgts,'denoise',true, ...
-        'frameId', frameId, 'sensorType', 'lpd');
+        'frameId', frameId, 'sensorType', 'lpd');  
 
     opticalImage_spd = oiCompute(oi, scene_spd,'aperture',aperture,'crop', ...
         true,'pixel size',pixelSize);
@@ -35,10 +35,11 @@ function lf_CameraSim(imageID, frameId)
         true,'pixel size',pixelSize);
     
     %% Stage 2
-    expTime_spd = 200e-3; % Integration time, taken from ISETHDR
-    expTime_lpd = 20e-3;
+    expTime_spd = 20e-3; % Integration time, taken from ISETHDR
+    expTime_lpd = 10e-3;
     satLevel = 0.95;
     sensorSize = [1082 1926];
+    % sensorSize = [540 960];
     
     arrayType = 'ovt';
     
@@ -53,49 +54,53 @@ function lf_CameraSim(imageID, frameId)
         'method', 'saturated', 'saturated', satLevel);
     
     %% Stage III
+    % Also Stage IV: Save images
+    % Moved to Stage III because
+    % ISETCam uses gamma from the last ipWindow
+    % This is fragile, if you change gamma in the ipWindow, 
+    % it will not reflect in the already saved imags
+    
     ipLPD = ipCreate;
     sensorLPDLCG = sensorArraySplit(1);
     ipLPDLCG = ipCompute(ipLPD, sensorLPDLCG, 'hdr white', true);
-    % ipWindow(ipLPDLCG,'render flag','rgb','gamma',0.5);
-    
-    ipLPDHCG = ipCreate;
-    sensorLPDHCG = sensorArraySplit(2);
-    ipLPDHCG = ipCompute(ipLPDHCG,sensorLPDHCG,'hdr white',true);
-    % ipWindow(ipLPDHCG,'render flag','rgb','gamma',0.5);
-    
-    ipSPD = ipCreate;
-    sensorSPD = sensorArraySplit(3);
-    ipSPD = ipCompute(ipSPD,sensorSPD,'hdr white',true);
-    % ipWindow(ipSPD,'render flag','rgb','gamma',0.5);
-    
-    ipSplit = ipCreate;
-    ipSplit = ipCompute(ipSplit,sensorCombined,'hdr white',true);
-    % ipWindow(ipSplit,'render flag','rgb','gamma',0.5);
-    
-    
-    %% Stage IV
-    rgb = ipGet(ipSplit,'srgb');
+    ipWindow(ipLPDLCG,'render flag','rgb','gamma',0.7);
+
+    rgb = ipGet(ipLPDLCG,'srgb');
     fname = fullfile(isetlfmRootPath,'data', imageID, ...
-        sprintf('combined-%s.png', frameId));
+        sprintf('lpd-lcg-%s.png', frameId));
     outDir = fileparts(fname);
     if ~exist(outDir,'dir')
         mkdir(outDir);
     end
     imwrite(rgb,fname);
     
-    rgb = ipGet(ipLPDLCG,'srgb');
-    fname = fullfile(isetlfmRootPath,'data', imageID, ...
-        sprintf('lpd-lcg-%s.png', frameId));
-    imwrite(rgb,fname);
-    
+    ipLPDHCG = ipCreate;
+    sensorLPDHCG = sensorArraySplit(2);
+    ipLPDHCG = ipCompute(ipLPDHCG,sensorLPDHCG,'hdr white',true);
+    ipWindow(ipLPDHCG,'render flag','rgb','gamma',0.7);
+
     rgb = ipGet(ipLPDHCG,'srgb');
     fname = fullfile(isetlfmRootPath,'data', imageID, ...
         sprintf('lpd-hcg-%s.png', frameId));
     imwrite(rgb,fname);
     
+    ipSPD = ipCreate;
+    sensorSPD = sensorArraySplit(3);
+    ipSPD = ipCompute(ipSPD,sensorSPD,'hdr white',true);
+    ipWindow(ipSPD,'render flag','rgb','gamma',0.5);
+
     rgb = ipGet(ipSPD,'srgb');
     fname = fullfile(isetlfmRootPath,'data', imageID, ...
         sprintf('spd-%s.png', frameId));
+    imwrite(rgb,fname);
+    
+    ipSplit = ipCreate;
+    ipSplit = ipCompute(ipSplit,sensorCombined,'hdr white',true);
+    ipWindow(ipSplit,'render flag','rgb','gamma',0.3);
+    
+    rgb = ipGet(ipSplit,'srgb');
+    fname = fullfile(isetlfmRootPath,'data', imageID, ...
+        sprintf('combined-%s.png', frameId));
     imwrite(rgb,fname);
     
 end
