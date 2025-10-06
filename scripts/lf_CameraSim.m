@@ -1,10 +1,33 @@
-function lf_CameraSim(imageID, frameId)
-% where i is a string like '01', '02', ..., '10'
+% lf_CameraSim.m: Pre-render light control version
+% 
+% Takes four inputs: 
+% imageID (string), frameId (string), weights for spd and lpd, 
+% combines four light groups to create the scene and
+% runs ISETCam simulator to generate captured images.
+% 
+% Flicker simulation can be pre-render or post-render,
+% this script is common for both routes.
+% 
+% For pre-render light control, see lf_RunCamera.m
+% For post-render light control, see lf_CamSim_LightCtrl.m
+% 
+% By changing the weights of the four light groups, 
+% different ambient lighting conditions can be simulated (day/night).
+% 
+% Input: 
+% - ImageID: '1112160403' etc.
+% - frameId: '01', '02', ..., '10'
+% 
+% Authored by Ayush Jamdar (August, 2025)
+% Based on ISETHDR examples by Zhenyi Liu
+
+function lf_CameraSim(imageID, frameId, wgts_spd, wgts_lpd)
+% where frameId is a string like '01', '02', ..., '10'
     %% Stage 0
     % ieInit; % Run IeInit from cmdline first. 
     % Can't place it here as it clears frameId
 
-    wgts = [3.0114    0.09    0.0498    10];
+    % Weight ordering:
     % headlight, street light, other, sky light
     
     [oi,wvf] = oiCreate('wvf');
@@ -24,9 +47,9 @@ function lf_CameraSim(imageID, frameId)
     
     %% Stage 1
     pixelSize = 2.8e-6; % LPD/SPD difference is accounted in sensor fill factor
-    scene_spd = lf_SceneCreate(imageID,'weights',wgts,'denoise',true, ...
+    scene_spd = lf_SceneCreate(imageID,'weights',wgts_spd,'denoise',true, ...
         'frameId', frameId, 'sensorType', 'spd');
-    scene_lpd = lf_SceneCreate(imageID,'weights',wgts,'denoise',true, ...
+    scene_lpd = lf_SceneCreate(imageID,'weights',wgts_lpd,'denoise',true, ...
         'frameId', frameId, 'sensorType', 'lpd');  
 
     opticalImage_spd = oiCompute(oi, scene_spd,'aperture',aperture,'crop', ...
@@ -36,10 +59,11 @@ function lf_CameraSim(imageID, frameId)
     
     %% Stage 2
     expTime_spd = 20e-3; % Integration time, taken from ISETHDR
-    expTime_lpd = 10e-3;
+    expTime_lpd = 10e-3; 
+    % we don't treat this as scene radiance exposure time
+    % but a sensor gain as exposure time is already accounted in scene creation
     satLevel = 0.95;
     sensorSize = [1082 1926];
-    % sensorSize = [540 960];
     
     arrayType = 'ovt';
     
