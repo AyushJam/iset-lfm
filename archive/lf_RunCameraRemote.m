@@ -1,3 +1,8 @@
+% lf_RunCameraRemote.m
+% Under development. Not yet part of iset-lfm.
+% 
+% Ayush Jamdar, 2025
+
 function lf_RunCameraRemote()
 % Download → process → delete for i=01..10, all inside MATLAB.
 
