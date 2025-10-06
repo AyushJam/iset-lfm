@@ -3,6 +3,15 @@
 # Example: ./prepare_scene.sh 1112153442
 #
 # Copies PBRT files per group and shared assets into the target scene folders.
+# 
+# Note: shared assets (geometry, skymaps, textures) are symbolic links
+#       to a common location that hosts all the data and should not be duplicated.
+# 
+# Update paths as needed:
+#   RECIPES_ROOT: where the PBRT scene recipes are stored
+#   SCENES_ROOT: where the scene folders will be created
+# 
+# Authored by Ayush M. Jamdar (September 2025) with AI assistance. 
 
 set -euo pipefail
 
@@ -15,7 +24,7 @@ sceneID="$1"
 
 # Source roots
 RECIPES_ROOT="/acorn/data/iset/isetauto/Ford/SceneRecipes"
-SCENES_ROOT="$HOME/iset/iset3d-tiny/data/scenes"
+SCENES_ROOT="$HOME/iset/iset-lfm/data/scenes"
 
 # Groups
 groups=(skymap headlights otherlights streetlights)
@@ -34,7 +43,7 @@ if [[ ! -d "$SCENES_ROOT" ]]; then
   exit 2
 fi
 
-# We’ll copy these (preserving symlinks) into each group folder
+# Copy these (preserving symlinks) into each group folder
 shared_dirs=(geometry skymaps textures)
 
 # Helper: copy with glob safety
