@@ -1,53 +1,77 @@
-%% ISETAuto Scene Recipe Editing
-function lf_DualExposureRecipes(sceneID, Nframes)
+% lf_EachLight_DualExposure
+% 
+% Script to create dual-exposure (LPD and SPD) PBRT files
+% N frames per light group per scene for a moving camera
+% 
+% Light Control: 
+% - [Key Idea] LEDs: each light in the light groups of headlights and 
+%   otherlights is assigned a random PWM frequency and duty cycle. 
+% - The light intensity is modulated frame-by-frame according to an LED flicker model.
+% - Non-LED lights (streetlights, skymap) are kept constant.
+% 
+% Camera Control:
+% - Moving camera at a constant speed (hyperparam)
+% - Two exposure durations (hyperparam): LPD (short) and SPD (long)
+% - Fixed frame rate (hyperparam)
+%
+% Inputs:
+% - sceneID: string, e.g. '1112153442'
+% - Nframes: integer, number of frames to write per light group
+% 
+% Authored by Ayush M. Jamdar (August 2025).
+% 
 
-    % %%
-    % ieInit;
-    % if ~piDockerExists, piDockerConfig; end
+function lf_EachLight_DualExposure(sceneID, Nframes)
+    % DON'T run ieInit here; it will delete input args
+    % ieInit; % Run it in cmd win before every session
     
-    %% Hyperparams
-    DUTY_MIN = 0.1;
-    DUTY_MAX = 0.4; % reduced to force light flicker
-    FPWM_MIN = 90;
+    %% Hyperparams; change as needed
+    DUTY_MIN = 0.1; % minimum duty cycle
+    DUTY_MAX = 0.4; % reduced to get noticable light flicker
+    FPWM_MIN = 90; % minimum PWM frequency in Hz
     FPWM_MAX = 110;
     gain = 1; % intensity multiplier
     rng(12); % seed for rand
     
     % Camera Params
     cam_speed = 60; % meters per second;
-    te_lpd = 0.005; % exposure duration in sec; LPD
-    te_spd = 0.0111; % SPD
+    te_lpd = 0.005; % exposure duration in sec; LPD; 5 ms
+    te_spd = 0.0111; % SPD; 11.11 ms = 1/90 sec
     fps = 60; % fps
     sim_time = Nframes / fps; % seconds
     resolution = [1920 1080];
     
-    %% Flicker Model Init
-    
-    flickerModulePath = fullfile(getenv('HOME'), 'iset', 'iset-lfm');
+    %% Flicker Model Setup
+    % the python module flicker_model.py must be at iset-lfm root
+    % and requires numpy
+    flickerModulePath = isetlfmRootPath;
     
     if count(py.sys.path, flickerModulePath) == 0
         insert(py.sys.path, int32(0), flickerModulePath);
     end
     
-    m = py.importlib.import_module('model'); 
+    m = py.importlib.import_module('flicker_model'); 
     py.importlib.reload(m); 
     
     np2mat = @(np) cell2mat(cell(py.numpy.asarray(np).tolist()));
     
     %% Load recipes
-    thisR_skymap = piRead(sprintf(['./iset3d-tiny/data/scenes/%s/%s_skymap' ...
-        '/%s_skymap.pbrt'], sceneID, sceneID, sceneID));
-    thisR_otherlights = piRead(sprintf(['./iset3d-tiny/data/scenes/%s/%s_otherlights' ...
-        '/%s_otherlights.pbrt'], sceneID, sceneID, sceneID));
-    thisR_headlights = piRead(sprintf(['./iset3d-tiny/data/scenes/%s/%s_headlights' ...
-        '/%s_headlights.pbrt'], sceneID, sceneID, sceneID));
-    thisR_streetlights = piRead(sprintf(['./iset3d-tiny/data/scenes/%s/%s_streetlights' ...
-        '/%s_streetlights.pbrt'], sceneID, sceneID, sceneID));
+    thisR_skymap = piRead(fullfile(piRootPath, 'data', 'scenes', sceneID, ...
+    sprintf('%s_skymap', sceneID), sprintf('%s_skymap.pbrt', sceneID)));
+
+    thisR_otherlights = piRead(fullfile(piRootPath, 'data', 'scenes', sceneID, ...
+        sprintf('%s_otherlights', sceneID), sprintf('%s_otherlights.pbrt', sceneID)));
+
+    thisR_headlights = piRead(fullfile(piRootPath, 'data', 'scenes', sceneID, ...
+        sprintf('%s_headlights', sceneID), sprintf('%s_headlights.pbrt', sceneID)));
+
+    thisR_streetlights = piRead(fullfile(piRootPath, 'data', 'scenes', sceneID, ...
+        sprintf('%s_streetlights', sceneID), sprintf('%s_streetlights.pbrt', sceneID)));
     
     recipes = {thisR_otherlights, thisR_headlights, thisR_streetlights, thisR_skymap};
-    % recipes = {thisR_otherlights};
     
     %% Start editing the recipe
+    % light and motion control loop
     
     for ii = 1:numel(recipes)
     
@@ -56,10 +80,10 @@ function lf_DualExposureRecipes(sceneID, Nframes)
         thisR.set('film resolution', resolution);
         thisR.set('rays per pixel', 1024);
         thisR.set('n bounces', 4);
-        thisR.set('scale', [1 1 1]);
+        thisR.set('scale', [1 1 1]); % necessary for active transform directions
         thisR.useDB = 1;
     
-        % Separate SPD and LPD recipes
+        % Separate SPD and LPD recipes (dual exposure)
         outputDir = thisR.get('output dir');
         if ~exist(outputDir, 'dir')
             mkdir(outputDir);
@@ -81,12 +105,13 @@ function lf_DualExposureRecipes(sceneID, Nframes)
         thisR_lpd.set('output file', lpd_outputFile);
     
         %% LED Flicker
+        % Control each light individually if LED
         lights = thisR.get('lights');
     
         if (thisR == thisR_otherlights) || (thisR == thisR_headlights) 
             % to save the LED data
             nL = numel(lights);
-            led_node_index = zeros(nL,1);
+            led_node_index  = zeros(nL,1);
             led_name        = strings(nL,1);
             duty_cycle      = zeros(nL,1);
             f_pwm_hz        = zeros(nL,1);
@@ -109,7 +134,7 @@ function lf_DualExposureRecipes(sceneID, Nframes)
                 end
                 led_name(lidx) = string(nm);     
     
-                % get random PWM parameters
+                % get random PWM parameters for this light
                 duty = DUTY_MIN + (DUTY_MAX - DUTY_MIN) * rand; 
                 fpwm = FPWM_MIN + (FPWM_MAX - FPWM_MIN) * rand;
                 tp = 1000 / fpwm; % PWM period in ms
@@ -117,7 +142,7 @@ function lf_DualExposureRecipes(sceneID, Nframes)
                 A = 1;
                 offset = 0;
     
-                % store params for CSV
+                % store params for CSV 
                 duty_cycle(lidx) = duty;
                 f_pwm_hz(lidx)   = fpwm;
                 t_start_ms(lidx) = ts;
@@ -125,7 +150,7 @@ function lf_DualExposureRecipes(sceneID, Nframes)
                 % get change in radiant exposure over frames
                 % returned phi starts at time=0, phi=0
                 % time inputs in ms
-                % SPD
+                % 1/2: SPD
                 py_out_spd = m.phi_over_frames(duty, fpwm, te_spd*1000, ts, fps, 1, ...
                     A, offset); % run for 1 sec (get more than needed)
                 time_np_spd = py_out_spd{1};
@@ -134,7 +159,7 @@ function lf_DualExposureRecipes(sceneID, Nframes)
                 phi_t_spd = np2mat(phi_np_spd);
                 phi_by_light_spd(lidx) = phi_t_spd;
     
-                % LPD
+                % 2/2: LPD
                 py_out_lpd = m.phi_over_frames(duty, fpwm, te_lpd*1000, ts, fps, 1, ...
                     A, offset); % run for 1 sec (get more than needed)
                 time_np_lpd = py_out_lpd{1};
@@ -155,6 +180,9 @@ function lf_DualExposureRecipes(sceneID, Nframes)
         end
     
         %% Camera Motion
+        % constant speed forward motion along -Z
+        % PBRTv4 active transform; separately for SPD and LPD
+        % this achieves motion blur over different exposures
         transform_time = 1 / fps; 
         
         thisR_spd.set('camera exposure', te_spd);
