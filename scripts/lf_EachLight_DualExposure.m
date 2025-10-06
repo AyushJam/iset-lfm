@@ -8,6 +8,8 @@
 %   otherlights is assigned a random PWM frequency and duty cycle. 
 % - The light intensity is modulated frame-by-frame according to an LED flicker model.
 % - Non-LED lights (streetlights, skymap) are kept constant.
+% - This is "pre-render light control". It is slower but controls each individual light. 
+% - For post-render light control, see lf_DualExposure.m
 % 
 % Camera Control:
 % - Moving camera at a constant speed (hyperparam)
@@ -18,6 +20,8 @@
 % - sceneID: string, e.g. '1112153442'
 % - Nframes: integer, number of frames to write per light group
 % 
+% Camera Simulation: TODO: Update filenames
+% - See lf_RunCameraLocal.m and lf_RunCameraRemote.m
 % Authored by Ayush M. Jamdar (August 2025).
 % 
 
@@ -139,8 +143,8 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
                 fpwm = FPWM_MIN + (FPWM_MAX - FPWM_MIN) * rand;
                 tp = 1000 / fpwm; % PWM period in ms
                 ts = tp * rand; % start time / led-camera phase offset
-                A = 1;
-                offset = 0;
+                A = 1; % amplitude
+                offset = 0; % amplitude offset
     
                 % store params for CSV 
                 duty_cycle(lidx) = duty;
@@ -197,6 +201,8 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
         cam_dist_pframe = cam_dist_total / Nframes;
         
         % Important: In PBRTv4, we start from the origin, not thisR.get('from')
+        % Set start and end positions for the camera
+        % this motion is performed during the frame exposure time
         start_cam_pos = [0 0 0];
         end_cam_pos = start_cam_pos;
         end_cam_pos(3) = end_cam_pos(3) - cam_dist_pframe;
@@ -218,6 +224,7 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
             thisR_lpd.set('camera motion translate end', end_cam_pos);
     
             % Flicker effect
+            % set light intensities according to LED flicker model
             tic;
             if (thisR == thisR_otherlights) || (thisR == thisR_headlights) 
             lights = thisR.get('lights');
@@ -243,11 +250,14 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
                     thisR_lpd.set('light', lights(lidx), 'specscale', gain);
                 end
             end
+            % this step usually takes the longest time
             disp(['Time to set lights: ', num2str(toc), ' seconds']);
         
+            % Write PBRT files
             piWrite(thisR_spd, 'remoterender', false);
             piWrite(thisR_lpd, 'remoterender', false);
-        
+            
+            % update camera position for next frame
             start_cam_pos = end_cam_pos;
             end_cam_pos(3) = end_cam_pos(3) - cam_dist_pframe;
         end
