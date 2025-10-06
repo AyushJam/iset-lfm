@@ -6,6 +6,7 @@
 # 
 # Note: shared assets (geometry, skymaps, textures) are symbolic links
 #       to a common location that hosts all the data and should not be duplicated.
+#       These symlinks must be present in $SCENES_ROOT.
 # 
 # Update paths as needed:
 #   RECIPES_ROOT: where the PBRT scene recipes are stored
@@ -24,7 +25,7 @@ sceneID="$1"
 
 # Source roots
 RECIPES_ROOT="/acorn/data/iset/isetauto/Ford/SceneRecipes"
-SCENES_ROOT="$HOME/iset/iset-lfm/data/scenes"
+SCENES_ROOT="$HOME/iset/iset3d-tiny/data/scenes"
 
 # Groups
 groups=(skymap headlights otherlights streetlights)
