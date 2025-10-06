@@ -26,6 +26,7 @@ sceneID="$1"
 # Source roots
 RECIPES_ROOT="/acorn/data/iset/isetauto/Ford/SceneRecipes"
 SCENES_ROOT="$HOME/iset/iset3d-tiny/data/scenes"
+META_ROOT="/acorn/data/iset/isetauto/Ford/SceneMetadata/"
 
 # Groups
 groups=(skymap headlights otherlights streetlights)
@@ -67,6 +68,15 @@ copy_glob() {
 echo "Preparing scene: ${sceneID}"
 echo "Target base: ${TARGET_BASE}"
 echo
+
+# Copy metadata JSON file if it exists
+meta_file="${META_ROOT}/${sceneID}.mat"
+if [[ -f "$meta_file" ]]; then
+  echo "  Copying metadata MAT -> ${TARGET_BASE}/"
+  cp -aP "$meta_file" "$TARGET_BASE/"
+else
+  echo "  WARN: Metadata file missing: $meta_file"
+fi
 
 for g in "${groups[@]}"; do
   echo "== Group: ${g} =="
