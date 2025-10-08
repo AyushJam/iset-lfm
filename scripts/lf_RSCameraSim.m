@@ -1,8 +1,30 @@
+% lf_RSCameraSim.m
+% 
+% Simulates a rolling shutter camera capturing a night 
+% driving scene with flickering lights.
+% 
+% Procedure: 
+% - We follow the post-render light control method to control 
+%   the brightness of LED light groups. 
+% - We combine the light groups with different weights 
+%   to create a new scene for EACH ROW capture.
+% - The flicker model generates the weights for each row capture.
+% - We then combine the diagonal rows from a frame cuboid hence obtained
+%   to create the final rolling shutter image.
+% 
+% Notes: 
+% - While we used a static scene to demonstrate the method, 
+%   the method can be extended to dynamic scenes but turning this 
+%   script into a function like lf_RunCamera/lf_CameraSim.
+% 
+% Authored by Ayush Jamdar (Sept, 2025)
+% with inputs from Brian Wandell.
+ 
+
 % function lf_RSCameraSim(imageID, frameId)
 % where i is a string like '01', '02', ..., '10'
 
     %% Flicker Model Init
-    
     flickerModulePath = fullfile(getenv('HOME'), 'iset', 'iset-lfm');
     
     if count(py.sys.path, flickerModulePath) == 0
@@ -17,7 +39,7 @@
 
     %% Stage 0
     % ieInit; % Run IeInit from cmdline first. 
-    % Can't place it here as it clears frameId
+    % Don't place it here as it clears frameId
 
     % camera params init
     sensor = sensorCreate; 
@@ -28,21 +50,21 @@
     sensor = sensorSet(sensor, 'size', sensorSize);
     sensor = sensorSet(sensor, 'exp time', expTime);
 
-    perRow = 10e-6; % read out time per row
+    perRow = 10e-6; % read out time per row / line time
      
     % total number of captures to simulate
     % nFrames = sensorSize(1) + round(expTime/perRow);
-    nFrames = sensorSize(1);
+    nFrames = sensorSize(1); % simplified
 
     % Initial weights
     imageID = '1112184733';
-    wgts = [1.0    0.5    1   0.01];
+    wgts = [1.0    0.5    1   0.01]; % night scene
     % headlight, street light, other, sky light
 
     % Light group characteristics
-    D_headlgts = 0.3;
-    fp_headlgts = 95; 
-    ts_headlgts = 0.15 * (1000 / fp_headlgts);
+    D_headlgts = 0.3; % duty cycle
+    fp_headlgts = 95; % flicker frequency in Hz
+    ts_headlgts = 0.15 * (1000 / fp_headlgts); % cycle time in ms
 
     D_otherlgts = 0.2;
     fp_otherlgts = 105;
@@ -139,6 +161,7 @@
     % z(slist) = 1;
 
     for rr = 1:sensorSize(1)
+        % slightly simplified
         % slist = slist + 1;
         % z = zeros(nFrames, 1);
         % z(slist) = 1;
@@ -155,6 +178,5 @@
     
     ieAddObject(ip);
     ipWindow;
-  
     
 % end
