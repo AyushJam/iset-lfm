@@ -14,12 +14,16 @@
 % 
 % Authored by Ayush Jamdar, 2025
 
-function lf_RunCamera(sceneID, Nframes)
+function lf_RunCam_LightCtrl(sceneID, Nframes)
   % --- CONFIG ---
   LOCAL_DIR   = fullfile(isethdrsensorRootPath, 'data', sceneID);
 
   % Ensure local output dir exists
   if ~exist(LOCAL_DIR, 'dir'); mkdir(LOCAL_DIR); end
+
+  % Initial light group weights
+  wgts = [3.0114    0.09    0.1    0.01];
+  % headlight, street light, other, sky light
 
   % Light control parameters
   DUTY_MIN = 0.1; % minimum duty cycle
@@ -33,7 +37,7 @@ function lf_RunCamera(sceneID, Nframes)
   duty_head = (DUTY_MAX-DUTY_MIN)*rand(1,1) + DUTY_MIN;
   fpwm_head = (FPWM_MAX-FPWM_MIN)*rand(1,1) + FPWM_MIN;
   tp_head = 1000/fpwm_head; % period in msec
-  ts_head = tp * rand; % random start time in msec
+  ts_head = tp_head * rand; % random start time in msec
   A = 1; % amplitude
   offset = 0; % amplitude offset
 
@@ -41,7 +45,7 @@ function lf_RunCamera(sceneID, Nframes)
   duty_other = (DUTY_MAX-DUTY_MIN)*rand(1,1) + DUTY_MIN;
   fpwm_other = (FPWM_MAX-FPWM_MIN)*rand(1,1) + FPWM_MIN;
   tp_other = 1000/fpwm_other; % period in msec
-  ts_other = tp * rand; % random start time in msec
+  ts_other = tp_other * rand; % random start time in msec
 
   % Load exposure times from metadata
   meta_file = fullfile(piRootPath, 'data', 'scenes', sceneID, ...
@@ -102,21 +106,18 @@ function lf_RunCamera(sceneID, Nframes)
   time_lpd_other = np2mat(time_np_lpd_other);
   phi_lpd_other = np2mat(phi_np_lpd_other);
 
-  % Initial light group weights
-  wgts = [3.0114    0.09    0.0498    10];
-  % headlight, street light, other, sky light
-  
   for k = 1:Nframes
     i = sprintf('%02d', k);
     fprintf('=== Processing frame %s ===\n', i);
 
     % Modulate weights according to temporal profiles
     wgts_mod_spd = wgts;
-    wgts_mod_lpd = wgts;
-    wgts_mod_spd(1) = wgts(1) * phi_spd_head(k); % headlight
-    wgts_mod_spd(3) = wgts(3) * phi_spd_other(k); % other light
-    wgts_mod_lpd(1) = wgts(1) * phi_lpd_head(k); % headlight
-    wgts_mod_lpd(3) = wgts(3) * phi_lpd_other(k); % other light
+    wgts_mod_lpd = wgts; 
+    % phi is indexed with time=0, phi=0
+    wgts_mod_spd(1) = wgts(1) * phi_spd_head(k+1); % headlight
+    wgts_mod_spd(3) = wgts(3) * phi_spd_other(k+1); % other light
+    wgts_mod_lpd(1) = wgts(1) * phi_lpd_head(k+1); % headlight
+    wgts_mod_lpd(3) = wgts(3) * phi_lpd_other(k+1); % other light
 
     lf_CameraSim(sceneID, i, wgts_mod_spd, wgts_mod_lpd);
     fprintf('Processed %s\n', i);
