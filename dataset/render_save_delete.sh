@@ -47,12 +47,18 @@ run_and_log() {
 	local cmd="$1"
 	echo
 	echo "---- RUN: $cmd ----" | tee -a "$LOG_FILE"
+	local start_time=$(date +%s)
 	set -o pipefail
-	{ bash -c "$cmd" 2>&1 | tee -a "$LOG_FILE"; } ; local status=${PIPESTATUS[0]}
+	{ bash -c "$cmd" 2>&1 | tee -a "$LOG_FILE"; }
+	local status=${PIPESTATUS[0]}
 	set +o pipefail
+	local end_time=$(date +%s)
+	local elapsed=$((end_time - start_time))
+	printf "---- TIME: %02d:%02d (mm:ss) ----\n" $((elapsed/60)) $((elapsed%60)) | tee -a "$LOG_FILE"
 	echo "---- EXIT: $status ----" | tee -a "$LOG_FILE"
 	return $status
 }
+
 
 # Safe delete helper (refuses to delete if path doesn't match expected base/sceneID)
 safe_delete_dir() {
