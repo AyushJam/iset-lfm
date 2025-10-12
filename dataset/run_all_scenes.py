@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List, Optional
 
 CHECKPOINT_PATH = Path("./dataset/.render_progress.json")
-DEFAULT_IDS_PATH = Path("./dataset/valid_sceneIDs.txt")
+DEFAULT_IDS_PATH = Path("./dataset/selected_scenes.txt")
 DEFAULT_SCRIPT = Path("./dataset/render_save_delete.sh")
 
 # Optional tqdm progress bar
