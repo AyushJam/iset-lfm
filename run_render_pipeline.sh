@@ -3,7 +3,6 @@
 #   A) ./prepare_scene.sh <sceneID>
 #   1) MATLAB: lf_DualExposure(<sceneID>, <Nframes>)
 #   2) ./render_splitpixel.sh <sceneID> <Nframes>
-#   3) Save to database on /acorn/
 #
 # Logs are streamed to the terminal and saved to ~/iset/logs.
 # 
