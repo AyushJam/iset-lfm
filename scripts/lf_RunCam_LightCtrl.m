@@ -53,7 +53,14 @@ function lf_RunCam_LightCtrl(sceneID, Nframes)
   if isfile(meta_file)
       sceneMeta = load(meta_file);
   else
-      error('Metadata file not found!');
+      meta_file = fullfile(piRootPath, 'local', ...
+            sprintf('%s_lf.mat', sceneID));
+        % If file not found, check local folder
+        if isfile(meta_file)
+            sceneMeta = load(meta_file);
+        else
+            error('Metadata file not found!');
+        end
   end
   te_lpd = sceneMeta.sceneMeta.lpd_exposure; % sec
   te_spd = sceneMeta.sceneMeta.spd_exposure; % sec
