@@ -31,11 +31,13 @@
 function lf_DualExposure(sceneID, Nframes)
     % DON'T run ieInit here; it will delete input args
     % ieInit; % Run it in cmd win before every session
-    CAM_SPEED_MIN = 50; % m/s, set high for motion blur
-    CAM_SPEED_MAX = 90; % m/s
+    CAM_SPEED_MIN = 20; % m/s, empirically tuned, minimum blur required
+    CAM_SPEED_MAX = 50; % m/s tuned for maximum blur 
+    % this is fast: but explainable as the relative speed of cars 
+    % in the opposite lane on a highway would be ~2x100 kmph = 55 m/s
+    % for cars in the same lane, this would cause extreme blur 
     LPD_EXP_MIN = 0.003; % sec
     LPD_EXP_MAX = 0.005; % sec
-    rng(12); % seed for rand
     
     % Camera Params
     cam_speed = CAM_SPEED_MIN + (CAM_SPEED_MAX - CAM_SPEED_MIN) * rand; % m/s
