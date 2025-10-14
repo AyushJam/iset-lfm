@@ -38,6 +38,7 @@ function lf_DualExposure(sceneID, Nframes)
     % for cars in the same lane, this would cause extreme blur 
     LPD_EXP_MIN = 0.003; % sec
     LPD_EXP_MAX = 0.005; % sec
+    rng('shuffle');  % for randomness across runs, otherwise -batch defaults to a seed
     
     % Camera Params
     cam_speed = CAM_SPEED_MIN + (CAM_SPEED_MAX - CAM_SPEED_MIN) * rand; % m/s
