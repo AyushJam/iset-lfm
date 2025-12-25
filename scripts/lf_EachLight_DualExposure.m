@@ -111,8 +111,12 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
         %% LED Flicker
         % Control each light individually if LED
         lights = thisR.get('lights');
-    
-        if (thisR == thisR_otherlights) || (thisR == thisR_headlights) 
+        
+        % % if otherlights and headlights are LEDs
+        % if (thisR == thisR_otherlights) || (thisR == thisR_headlights) 
+        % if only otherlights are LEDs
+        if (thisR == thisR_otherlights)
+
             % to save the LED data
             nL = numel(lights);
             led_node_index  = zeros(nL,1);
