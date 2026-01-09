@@ -87,7 +87,7 @@ function lf_CameraSim(imageID, frameId, wgts_spd, wgts_lpd)
     ipLPD = ipCreate;
     sensorLPDLCG = sensorArraySplit(1);
     ipLPDLCG = ipCompute(ipLPD, sensorLPDLCG, 'hdr white', true);
-    ipWindow(ipLPDLCG,'render flag','rgb','gamma',0.7);
+    ipWindow(ipLPDLCG,'render flag','rgb','gamma',0.7); % works if a GUI is available
 
     rgb = ipGet(ipLPDLCG,'srgb');
     fname = fullfile(isetlfmRootPath,'data', imageID, ...
