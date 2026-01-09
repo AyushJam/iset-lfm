@@ -72,8 +72,15 @@ else
 
         scenes = cell(numel(lgt,1));
         for ll = 1:numel(lgt)
-            destPath = fullfile(piRootPath, 'local', sprintf('%s_%s', imageID, lgt{ll}), ...
-            p.Results.sensorType, 'renderings');
+            % % pre-render light control
+            % destPath = fullfile(piRootPath, 'local', sprintf('%s_%s', imageID, lgt{ll}), ...
+                % p.Results.sensorType, 'renderings');  % if using spd/renderings/
+
+            % post-render light control
+            destPath = fullfile(isetlfmRootPath, 'local', imageID, ...
+                sprintf('%s_%s', imageID, lgt{ll}), p.Results.sensorType);
+            
+
             fprintf('Reading EXR from %s\n', destPath);
             
             thisFile = sprintf('%s.exr',p.Results.frameId);
