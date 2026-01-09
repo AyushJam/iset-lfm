@@ -22,7 +22,7 @@ function lf_RunCam_LightCtrl(sceneID, Nframes)
   if ~exist(LOCAL_DIR, 'dir'); mkdir(LOCAL_DIR); end
 
   % Initial light group weights
-  wgts = [3.0114    0.09    0.1    0.01];
+  wgts = [1    0.09    0.1    4];
   % headlight, street light, other, sky light
 
   % Light control parameters
@@ -33,13 +33,14 @@ function lf_RunCam_LightCtrl(sceneID, Nframes)
   rng(12); % seed for randomness
 
   % Get random LED parameters for each LED light group
-  % 1/2: Headlights
-  duty_head = (DUTY_MAX-DUTY_MIN)*rand(1,1) + DUTY_MIN;
-  fpwm_head = (FPWM_MAX-FPWM_MIN)*rand(1,1) + FPWM_MIN;
-  tp_head = 1000/fpwm_head; % period in msec
-  ts_head = tp_head * rand; % random start time in msec
   A = 1; % amplitude
   offset = 0; % amplitude offset
+  % % 1/2: Headlights (if LED)
+  % % higher duty cycle for headlights to avoid absolute flicker
+  % duty_head = (DUTY_MAX+0.3-DUTY_MIN)*rand(1,1) + DUTY_MIN + 0.2;
+  % fpwm_head = (FPWM_MAX-FPWM_MIN)*rand(1,1) + FPWM_MIN;
+  % tp_head = 1000/fpwm_head; % period in msec
+  % ts_head = tp_head * rand; % random start time in msec
 
   % 2/2: Other lights
   duty_other = (DUTY_MAX-DUTY_MIN)*rand(1,1) + DUTY_MIN;
@@ -48,7 +49,7 @@ function lf_RunCam_LightCtrl(sceneID, Nframes)
   ts_other = tp_other * rand; % random start time in msec
 
   % Load exposure times from metadata
-  meta_file = fullfile(piRootPath, 'data', 'scenes', sceneID, ...
+  meta_file = fullfile(isetlfmRootPath, 'local', sceneID, ...
         sprintf('%s_lf.mat', sceneID));
   if isfile(meta_file)
       sceneMeta = load(meta_file);
@@ -81,21 +82,22 @@ function lf_RunCam_LightCtrl(sceneID, Nframes)
   np2mat = @(np) cell2mat(cell(py.numpy.asarray(np).tolist()));
     
   % Generate temporal profiles for each LED light group
-  % 1.1: Headlights SPD
-  pyout_spd_head = m.phi_over_frames(duty_head, fpwm_head, te_spd*1000, ...
-    ts_head, fps, 1, A, offset); % run for 1 second
-  time_np_spd_head = pyout_spd_head{1};
-  phi_np_spd_head = pyout_spd_head{2};
-  time_spd_head = np2mat(time_np_spd_head);
-  phi_spd_head = np2mat(phi_np_spd_head);
+  % % Headlights: Comment out if not LED
+  % % 1.1: Headlights SPD
+  % pyout_spd_head = m.phi_over_frames(duty_head, fpwm_head, te_spd*1000, ...
+  %   ts_head, fps, 1, A, offset); % run for 1 second
+  % time_np_spd_head = pyout_spd_head{1};
+  % phi_np_spd_head = pyout_spd_head{2};
+  % time_spd_head = np2mat(time_np_spd_head);
+  % phi_spd_head = np2mat(phi_np_spd_head);
 
-  % 1.2: Headlights LPD
-  pyout_lpd_head = m.phi_over_frames(duty_head, fpwm_head, te_lpd*1000, ...
-    ts_head, fps, 1, A, offset); % run for 1 second
-  time_np_lpd_head = pyout_lpd_head{1};
-  phi_np_lpd_head = pyout_lpd_head{2};
-  time_lpd_head = np2mat(time_np_lpd_head);
-  phi_lpd_head = np2mat(phi_np_lpd_head);
+  % % 1.2: Headlights LPD
+  % pyout_lpd_head = m.phi_over_frames(duty_head, fpwm_head, te_lpd*1000, ...
+  %   ts_head, fps, 1, A, offset); % run for 1 second
+  % time_np_lpd_head = pyout_lpd_head{1};
+  % phi_np_lpd_head = pyout_lpd_head{2};
+  % time_lpd_head = np2mat(time_np_lpd_head);
+  % phi_lpd_head = np2mat(phi_np_lpd_head);
 
   % 2.1: Other lights SPD
   pyout_spd_other = m.phi_over_frames(duty_other, fpwm_other, te_spd*1000, ...
@@ -121,9 +123,10 @@ function lf_RunCam_LightCtrl(sceneID, Nframes)
     wgts_mod_spd = wgts;
     wgts_mod_lpd = wgts; 
     % phi is indexed with time=0, phi=0
-    wgts_mod_spd(1) = wgts(1) * phi_spd_head(k+1); % headlight
+    % % Headlights: Comment out if not LED
+    % wgts_mod_spd(1) = wgts(1) * phi_spd_head(k+1); % headlight
+    % wgts_mod_lpd(1) = wgts(1) * phi_lpd_head(k+1); % headlight
     wgts_mod_spd(3) = wgts(3) * phi_spd_other(k+1); % other light
-    wgts_mod_lpd(1) = wgts(1) * phi_lpd_head(k+1); % headlight
     wgts_mod_lpd(3) = wgts(3) * phi_lpd_other(k+1); % other light
 
     lf_CameraSim(sceneID, i, wgts_mod_spd, wgts_mod_lpd);
