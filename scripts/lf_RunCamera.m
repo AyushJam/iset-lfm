@@ -1,10 +1,10 @@
-% lf_RunCamera.m
+% lf_RunCamera.m: Pre-render light control (Option A)
 % 
 % Run camera simulation for each frame iteratively. 
 % lf_CameraSim is called for each frame.
 % 
 % Pre-render light control:
-% - assumes light intensities have been modulated in pbrt
+% - assumes light intensities have been modulated in scene
 %   before rendering. 
 % - no temporal profile is applied here.
 % - fixed weights are used for all frames.
