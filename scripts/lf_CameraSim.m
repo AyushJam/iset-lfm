@@ -1,9 +1,10 @@
-% lf_CameraSim.m: Pre-render light control version
+% lf_CameraSim.m: Pre-render light control (Option A) version
+
 % 
 % Takes four inputs: 
-% imageID (string), frameId (string), weights for spd and lpd, 
-% combines four light groups to create the scene and
-% runs ISETCam simulator to generate captured images.
+%   imageID (string), frameId (string), weights for spd and lpd, 
+%   combines four light groups to create the scene and
+%   runs ISETCam simulator to generate captured images.
 % 
 % Flicker simulation can be pre-render or post-render,
 % this script is common for both routes.

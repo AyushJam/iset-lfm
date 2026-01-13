@@ -1,10 +1,14 @@
-% lf_RunCamera.m
+% lf_RunCam_LightCtrl.m: Post-render light control version
 % 
 % Run camera simulation for each frame iteratively. 
 % lf_CameraSim is called for each frame.
 % 
-% Post-render light control: 
-% - apply a temporal profile to each LED light group per frame
+% Post-render light control (Option B) approach: 
+% - apply a temporal profile to each LED light group weight per frame
+%   using the flicker model, as described in the paper
+% 
+% EXR files must be stored in iset-lfm/local/sceneID/
+% path is used in lf_SceneCreate.m
 % 
 % Hyperparameters (can be changed in the code):
 % DUTY_MIN: minimum duty cycle

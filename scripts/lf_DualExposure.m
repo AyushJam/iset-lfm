@@ -1,20 +1,20 @@
-% lf_DualExposure
+% lf_DualExposure: Post-render light control version
 % 
 % Script to create dual-exposure (LPD and SPD) PBRT files
 % N frames per light group per scene for a moving camera
 % 
-% Light Control: 
+% Post-render Light Control (Option B): 
 % - [Key Idea] LEDs: all lights in a group (otherlights or headlights)
 %   will be controlled together as one single light source AFTER rendering.
 % 
 %       In other words, all LEDs in a group are in sync.
 %       This assumption makes the simulation faster, with an intention 
-%       to build a dataset for learning-based methods.
+%       to build a dataset.
 % 
 % - The light intensity will be modulated frame-by-frame during camera simulation
 %   according to the LED flicker model. We don't modulate lights in the PBRT. 
 % - We call this "post-render light control".
-% - For pre-render light control, see lf_EachLight_DualExposure.m
+% - For pre-render light control, see lf_DualExposure_PreRender.m
 % 
 % Camera Control:
 % - Moving camera at a constant speed (hyperparam)
