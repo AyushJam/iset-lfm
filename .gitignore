@@ -1,5 +1,6 @@
 local/*
 data/*
+archive/*
 *.asv
 *.log
 .DS_Store
