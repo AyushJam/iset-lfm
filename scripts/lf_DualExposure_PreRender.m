@@ -1,9 +1,11 @@
-% lf_EachLight_DualExposure
+% lf_DualExposure_PreRender: Pre-render light control version
+% 
+% Formerly named: lf_EachLight_DualExposure.m
 % 
 % Script to create dual-exposure (LPD and SPD) PBRT files
 % N frames per light group per scene for a moving camera
 % 
-% Light Control: 
+% Pre-render Light Control: 
 % - [Key Idea] LEDs: each light in the light groups of headlights and 
 %   otherlights is assigned a random PWM frequency and duty cycle. 
 % - The light intensity is modulated frame-by-frame according to an LED flicker model.
@@ -20,12 +22,10 @@
 % - sceneID: string, e.g. '1112153442'
 % - Nframes: integer, number of frames to write per light group
 % 
-% Camera Simulation: TODO: Update filenames
-% - See lf_RunCameraLocal.m and lf_RunCameraRemote.m
 % Authored by Ayush M. Jamdar (August 2025).
 % 
 
-function lf_EachLight_DualExposure(sceneID, Nframes)
+function lf_DualExposure_PreRender(sceneID, Nframes)
     % DON'T run ieInit here; it will delete input args
     % ieInit; % Run it in cmd win before every session
     
@@ -35,7 +35,7 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
     FPWM_MIN = 90; % minimum PWM frequency in Hz
     FPWM_MAX = 110;
     gain = 1; % intensity multiplier
-    rng(12); % seed for rand
+    rng(22); % seed for rand, was 12 for abstract figure
     
     % Camera Params
     cam_speed = 60; % meters per second;
@@ -230,8 +230,11 @@ function lf_EachLight_DualExposure(sceneID, Nframes)
             % Flicker effect
             % set light intensities according to LED flicker model
             tic;
-            if (thisR == thisR_otherlights) || (thisR == thisR_headlights) 
-            lights = thisR.get('lights');
+            % % if otherlights and headlights are LEDs
+            % if (thisR == thisR_otherlights) || (thisR == thisR_headlights) 
+            % if only otherlights are LEDs
+            if (thisR == thisR_otherlights)
+                lights = thisR.get('lights');
                 % for each LED light
                 for lidx = 1:numel(lights)
                     % SPD
