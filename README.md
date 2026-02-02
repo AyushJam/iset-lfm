@@ -11,11 +11,8 @@ This repository contains the official code and dataset for the paper:
 ## 1. Introduction
 LED flicker is a persistent artifact in automotive imaging where lights modulated via Pulse Width Modulation (PWM) produce temporal intensity variations in captured video. Our framework provides an open-source, physics-based simulation pipeline that integrates an analytical PWM flicker model with active camera transforms to simulate realistic motion blur and flicker artifacts.
 
-![Simulation Framework](figures/block_diagram.png)  
-*Figure 1: The ISET-LFM Simulation Framework—from 3D scene assembly and ego-motion control to split-pixel sensor modeling.*
-
 ![Dataset Diversity](figures/dataset.png)  
-*Figure 2: Sample scenes from the dataset illustrating the motion-flicker trade-off. Top row (LPD) shows short-exposure flickering; bottom row (SPD) shows long-exposure signal recovery with motion blur at various ego-velocities (v).*
+*Figure: Sample scenes from the dataset illustrating the motion-flicker trade-off. Top row (LPD) shows short-exposure flickering; bottom row (SPD) shows long-exposure signal recovery with motion blur at various ego-velocities (v).*
 
 ---
 
