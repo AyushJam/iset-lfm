@@ -62,10 +62,20 @@ We utilize the post-render light control approach to enable researchers to modul
 ---
 
 ## Citation
-If you use this framework or dataset in your research, please cite our EI 2026 paper:
+If you use this framework or dataset in your research, please cite our EI 2026 paper and dataset:
 
 ```bibtex
-TO BE ADDED
+PAPER: TO BE ADDED
+
+DATASET: 
+@misc{jamdar2026iset,
+  author       = {Jamdar, Ayush.},
+  title        = {{ISET-LFM: A Physics-based Synthetic Radiance Dataset for LED Flicker Mitigation in Automotive Imaging}},
+  howpublished = {Stanford Digital Repository},
+  year         = {2026},
+  url          = {https://purl.stanford.edu/wd776hn7919},
+  note         = {Available at \url{https://purl.stanford.edu/wd776hn7919}}
+}
 ```
 
 ## Acknowledgements
