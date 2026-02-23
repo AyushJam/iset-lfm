@@ -1,4 +1,4 @@
-# ISET-LFM: A Physics-based Simulation Framework and Dataset for LED Flicker
+# ISET-LFM: A Physics-based Simulation Framework and Dataset for LED Flicker in Automotive Imaging
 
 This repository contains the official code and dataset for the paper:  
 **"A Physics-based Simulation Framework and Dataset for LED Flicker in Automotive Imaging"** Accepted at the **Electronic Imaging (EI) 2026** conference.
