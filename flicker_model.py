@@ -1,6 +1,5 @@
 """
-Python model for the mathematical LED flicker model described in
-    "LED Flicker Modeling" by Ayush Jamdar and Ramakrishna Kakarala (August 2025)
+Python model for the mathematical LED flicker model 
 
 Input:
     - D: duty cycle of the LED in [0, 1]
@@ -20,8 +19,28 @@ import numpy as np
 def get_phi(D, tp, te, ts=0, A=1, offset=0, use_random_ts=False):
     """
     Flicker Model Implementation
-    All inputs must be scalars!
-    offset: source intensity at OFF
+    Calculates radiant exposure for a single capture frame. 
+    Think of it as a global shutter imaging a point LED, 
+    or a single pixel imaging it. 
+
+    Input args: 
+        D (float) [0, 1]: duty cycle of the LED being imaged
+        fp (float): PWM frequency of LED in Hz; must be > 90 Hz
+        te (float): exposure time of camera in ms
+        ts (float): time offset (in ms) of exposure start time relative to 
+            the last rising edge of LED pulse. 0 < ts < tp, where tp=1000/fp
+        A (float): max radiant intensity of LED; 
+            currently unitless; default 1. 
+        offset (float): LED radiant intensity during OFF period. Default 0. 
+        use_random_ts (bool): if False, uses a random ts, if True, uses ts from arg. 
+
+    Returns: 
+        phi (float): radiant exposure
+
+    Notes: 
+    - Unlike models from previously published flicker analysis works, this
+    implementation uses an explicit piece-wise continuous function model.
+    - For validation and usage, see the analysis jupyter notebook.  
     """
 
     if use_random_ts:
@@ -222,6 +241,31 @@ def get_phi(D, tp, te, ts=0, A=1, offset=0, use_random_ts=False):
 
 
 def phi_over_frames(D, fp, te, ts, frame_rate, Nsec, A=1, offset=0):
+    """
+    Calculates radiant exposure phi as would be observed
+    over a frame sequence. 
+
+    Input args: 
+        D (float) [0, 1]: duty cycle of the LED being imaged
+        fp (float): PWM frequency of LED in Hz; must be > 90 Hz
+        te (float): exposure time of camera in ms
+        ts (float): time offset (in ms) of exposure start time relative to 
+            the last rising edge of LED pulse. 0 < ts < tp, where tp=1000/fp
+        frame_rate (int): camera frame rate in fps; typically 30 or 60 fps
+        Nsec (int): duration over which to calculate phi; 
+            function returns an array of len frame_rate * Nsec
+        A (float): max radiant intensity of LED; 
+            currently unitless; default 1. 
+        offset (float): LED radiant intensity during OFF period. Default 0. 
+
+    Returns: 
+        time (np.array): time array of length frame_rate * N
+        phi_t (np.array): radiant exposure values for frames at those times
+
+    Notes: 
+    - See the analysis jupyter notebook for usage.   
+    - Key trick: recursively update ts for each frame
+    """
     tp = 1000 / fp
     tf = (1 / frame_rate) * 1000  # we're using ms as time unit
     # N second video feed
@@ -244,6 +288,30 @@ def phi_over_frames(D, fp, te, ts, frame_rate, Nsec, A=1, offset=0):
 
 
 def phi_over_rows(D, fp, te, ts_init, td, Nrows, A=1, offset=0):
+    """
+    Calculates radiant exposure phi as would be observed
+    over rows of a single image. 
+
+    Input args: 
+        D (float) [0, 1]: duty cycle of the LED being imaged
+        fp (float): PWM frequency of LED in Hz; must be > 90 Hz
+        te (float): exposure time of camera in ms
+        ts_init: time offset (in ms) of exposure start time relative to 
+            the last rising edge of LED pulse. 0 < ts < tp, where tp=1000/fp
+            This offset time is for the FIRST ROW. 
+        td (float): line delay time of rows in ms.  
+        Nrows (int): number of rows in the rolling shutter sensor
+        A (float): max radiant intensity of LED; 
+            currently unitless; default 1. 
+        offset (float): LED radiant intensity during OFF period. Default 0. 
+
+    Returns: 
+        row_capture (np.array): radiant exposure value for each row
+
+    Notes: 
+    - See the analysis jupyter notebook for usage.   
+    - Key trick: recursively update ts for each row
+    """
     tp = 1000 / fp
     Nrows = int(Nrows)
 
