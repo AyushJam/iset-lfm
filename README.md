@@ -40,12 +40,12 @@ To utilize the post-render light control and sensor simulation, the following to
 
 * **[ISETCam](https://github.com/ISET/isetcam)**: Core image system simulation and sensor modeling.
 * **[isethdrsensor](https://github.com/ISET/isethdrsensor)**: Specialized support for light group control, split-pixel and multi-exposure HDR sensor architectures.
-* **(Optional) [iset3d-tiny](https://github.com/ISET/iset3d-tiny)**: Required only if you intend to run pre-render (Option A) light control.
+* **(Optional) [iset3d-tiny](https://github.com/ISET/iset3d-tiny)**: Required only if you intend to run pre-render (Option A) light control. Please note that if you choose to do so and have access to the ISETAuto assets, follow the `fix-geometry` [branch on my fork](https://github.com/AyushJam/iset3d-tiny/tree/fix-geometry) or refer to my [PR](https://github.com/ISET/iset3d/pull/5) to ISET3D. This branch fixes critical bugs in ISET3D which otherwise break repeated scene rendering (like, over a frame sequence).
 
 ---
 
 ## 4. How to Use
-The framework is designed for use in **MATLAB (tested on R2024b)**. Note that the MATLAB UI is required for ISETCam visualization components (`ipWindow`).
+The framework is designed for use in **MATLAB (tested on R2024b)**. Note that the MATLAB UI is required for ISETCam visualization components (`ipWindow`). Please note that you will have to run `ieInit.m` from MATLAB to initialize the ISET toolbox. 
 
 ### Dataset Processing (Post-render Option B)
 We utilize the post-render light control approach to enable researchers to modulate flicker parameters (such as duty cycle and frequency) after the ray-tracing step.
