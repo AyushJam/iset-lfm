@@ -3,7 +3,7 @@
 This repository contains the official code and dataset for the paper:  
 **"A Physics-based Simulation Framework and Dataset for LED Flicker in Automotive Imaging"** Accepted at the **Electronic Imaging (EI) 2026** conference.
 
-*Paper Link*: [TO BE ADDED]()  
+*Paper Link*: [EI 2026 Proceedings](https://library.imaging.org/ei/articles/38/16/AVM-105)  
 *Dataset Link*: [Stanford Digital Repository](https://purl.stanford.edu/wd776hn7919)
 
 ---
