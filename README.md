@@ -64,10 +64,11 @@ We utilize the post-render light control approach to enable researchers to modul
 ## Citation
 If you use this framework or dataset in your research, please cite our EI 2026 paper and dataset:
 
-```bibtex
-PAPER: TO BE ADDED
+#### Research Paper
+Ayush M. Jamdar, "ISET-LFM: A Physics-based Simulation Framework and Dataset for LED Flicker in Automotive Imaging"  in Electronic Imaging,  2026,  pp 105-1 - 105-7,  https://doi.org/10.2352/EI.2026.38.16.AVM-105
 
-DATASET: 
+#### Dataset
+```bibtex
 @misc{jamdar2026iset,
   author       = {Jamdar, Ayush.},
   title        = {{ISET-LFM: A Physics-based Synthetic Radiance Dataset for LED Flicker Mitigation in Automotive Imaging}},
