@@ -59,6 +59,9 @@ We utilize the post-render light control approach to enable researchers to modul
     lf_RunCam_LightCtrl(sceneID, Nframes)
     ```
 
+### Flicker Model
+Please refer to `flicker_analysis.ipynb` for some examples on how to use the flicker model, simulate flicker over frames, and the rolling shutter banding effect. The notebook also validates our flicker model with previously published results. 
+
 ---
 
 ## Citation
