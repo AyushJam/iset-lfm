@@ -83,6 +83,6 @@ Ayush M. Jamdar, "ISET-LFM: A Physics-based Simulation Framework and Dataset for
 ```
 
 ## Acknowledgements
-This work was primarily developed during an internship at Omnivision Technologies. I am deeply grateful to Dr. Ramakrishna Kakarala for his technical guidance and mentorship. Special thanks to Prof. Brian Wandell for providing access to the Stanford VISTA Lab’s computational resources and the ISETAuto database. This research was built upon the robust foundation of the ISET open-source ecosystem.
+This work was supported by Omnivision Technologies through the 2025 Summer Internship Program as an open-source collaboration with the Stanford VISTA Lab. I am deeply grateful to Dr. Ramakrishna Kakarala from OVT and Prof. Brian Wandell from Stanford for their technical guidance and mentorship. This research was built upon the robust foundation of the ISET open-source ecosystem.
 
 
